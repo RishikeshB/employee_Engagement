@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "738841710831",
+    "project_id": "myemppro",
+    "storage_bucket": "myemppro.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:738841710831:android:b98d92d8d38b097e904b1a",
+        "android_client_info": {
+          "package_name": "com.pro_emp.firebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "738841710831-s6uv6s1ptn9q0s1i1aseud9338qjhu40.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pro_emp.firebase",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "738841710831-1mmlvs70e1ot54ugno60qmh37m3fgnks.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGpnS4J9I8o6AXmvnyhCIAV-nEZzvZWLA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "738841710831-1mmlvs70e1ot54ugno60qmh37m3fgnks.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "738841710831-rl50pvkkocpcuc3qmjhpoed6k553s1ti.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.pro-emp.firebase"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
