@@ -23,6 +23,20 @@ const NotificationContext = createContext<NotificationContextType | undefined>(
 
 export const useNotification = () => {
   const context = useContext(NotificationContext);
+  // Notifications.scheduleNotificationAsync({
+  //   content: {
+  //     title: "Welcome to the Notification Context!",
+  //     body: "This is a test notification from the NotificationContext.",
+  //     data: { extraData: "This is some extra data" },
+  //   },
+  //   identifier: "test-notification",
+  //   trigger: {
+  //     type: SchedulableTriggerInputTypes.TIME_INTERVAL,
+  //     channelId: "string",
+  //     repeats: true,
+  //     seconds: 1800,
+  //   },
+  // });
   if (context === undefined) {
     throw new Error(
       "useNotification must be used within a NotificationProvider"
