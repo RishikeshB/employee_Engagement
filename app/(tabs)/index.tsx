@@ -1,15 +1,16 @@
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+import MyBarChart from "@/components/BarChart";
 import { useNotification } from "@/context/NotificationContext";
+import { LinearGradient } from "expo-linear-gradient";
 import * as Updates from "expo-updates";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
-  Button,
-  Platform,
   SafeAreaView,
-  StatusBar,
+  ScrollView,
   StyleSheet,
+  Text,
+  useColorScheme,
+  View,
 } from "react-native";
 
 export default function HomeScreen() {
@@ -17,19 +18,20 @@ export default function HomeScreen() {
   const { currentlyRunning, isUpdateAvailable, isUpdatePending } =
     Updates.useUpdates();
 
-  const [dummyState, setDummyState] = useState(0);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
 
-  if (error) {
-    return <ThemedText>Error: {error.message}</ThemedText>;
-  }
+  const [currentIntake, setCurrentIntake] = useState(1300);
+  const [selectedAmount, setSelectedAmount] = useState(250);
+  const [intakeLogs, setIntakeLogs] = useState<
+    { amount: number; time: string }[]
+  >([]);
+
+  const dailyGoal = 3000;
+  const progress = currentIntake / dailyGoal;
 
   useEffect(() => {
     if (isUpdatePending) {
-      // Update has successfully downloaded; apply it now
-      // Updates.reloadAsync();
-      // setDummyState(dummyState + 1);
-      // Alert.alert("Update downloaded and applied");
-
       dummyFunction();
     }
   }, [isUpdatePending]);
@@ -38,122 +40,224 @@ export default function HomeScreen() {
     try {
       await Updates.reloadAsync();
     } catch (e) {
-      Alert.alert("Error");
+      Alert.alert("Update Error", "Failed to apply update.");
     }
-
-    // UNCOMMENT TO REPRODUCE EAS UPDATE ERROR
-    // } finally {
-    //   setDummyState(dummyState + 1);
-    //   console.log("dummyFunction");
-    // }
   };
 
-  // If true, we show the button to download and run the update
-  const showDownloadButton = isUpdateAvailable;
+  const handleLogIntake = () => {
+    const now = new Date();
+    const timestamp = now.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
-  // Show whether or not we are running embedded code or an update
-  const runTypeMessage = currentlyRunning.isEmbeddedLaunch
-    ? "This app is running from built-in code"
-    : "This app is running an update";
+    setCurrentIntake((prev) => {
+      const newTotal = prev + selectedAmount;
+      // Alert.alert("Water Logged", `Added ${selectedAmount}ml of water!`);
+      return newTotal > dailyGoal ? dailyGoal : newTotal;
+    });
+
+    setIntakeLogs((logs) => [
+      ...logs,
+      { amount: selectedAmount, time: timestamp },
+    ]);
+  };
+
+  const styles = getStyles(isDark);
+
   return (
-    <ThemedView
-      style={{
-        flex: 1,
-        padding: 10,
-        paddingTop: Platform.OS == "android" ? StatusBar.currentHeight : 10,
-      }}
-    >
-      <SafeAreaView style={{ flex: 1 }}>
-        <ThemedText type="subtitle">Updates Demo 5</ThemedText>
-        <ThemedText>{runTypeMessage}</ThemedText>
-        <Button
-          onPress={() => Updates.checkForUpdateAsync()}
-          title="Check manually for updates"
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.sectionTitle}>Last 7 Days</Text>
+        <View style={styles.chartWrapper}>
+          <MyBarChart />
+        </View>
+
+        <LinearGradient
+          colors={["rgba(200,200,200,0)", "#888", "rgba(200,200,200,0)"]}
+          style={styles.divider}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
         />
-        {showDownloadButton ? (
-          <Button
-            onPress={() => Updates.fetchUpdateAsync()}
-            title="Download and run update"
-          />
-        ) : null}
-        <ThemedText type="subtitle" style={{ color: "red" }}>
-          Your push token:
-        </ThemedText>
-        <ThemedText>{expoPushToken}</ThemedText>
-        <ThemedText type="subtitle">Latest notification:</ThemedText>
-        <ThemedText>{notification?.request.content.title}</ThemedText>
-        <ThemedText>
-          {JSON.stringify(notification?.request.content.data, null, 2)}
-        </ThemedText>
-      </SafeAreaView>
-    </ThemedView>
-    // <ParallaxScrollView
-    //   headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-    //   headerImage={
-    //     <Image
-    //       source={require("@/assets/images/partial-react-logo.png")}
-    //       style={styles.reactLogo}
-    //     />
-    //   }
-    // >
-    //   <ThemedView style={styles.titleContainer}>
-    //     <ThemedText type="title">Welcome!</ThemedText>
-    //     <HelloWave />
-    //   </ThemedView>
-    //   <ThemedView style={styles.stepContainer}>
-    //     <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-    //     <ThemedText>
-    //       Edit{" "}
-    //       <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{" "}
-    //       to see changes. Press{" "}
-    //       <ThemedText type="defaultSemiBold">
-    //         {Platform.select({
-    //           ios: "cmd + d",
-    //           android: "cmd + m",
-    //           web: "F12",
-    //         })}
-    //       </ThemedText>{" "}
-    //       to open developer tools.
-    //     </ThemedText>
-    //   </ThemedView>
-    //   <ThemedView style={styles.stepContainer}>
-    //     <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-    //     <ThemedText>
-    //       {`Tap the Explore tab to learn more about what's included in this starter app.`}
-    //     </ThemedText>
-    //   </ThemedView>
-    //   <ThemedView style={styles.stepContainer}>
-    //     <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-    //     <ThemedText>
-    //       {`When you're ready, run `}
-    //       <ThemedText type="defaultSemiBold">
-    //         npm run reset-project
-    //       </ThemedText>{" "}
-    //       to get a fresh <ThemedText type="defaultSemiBold">app</ThemedText>{" "}
-    //       directory. This will move the current{" "}
-    //       <ThemedText type="defaultSemiBold">app</ThemedText> to{" "}
-    //       <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-    //     </ThemedText>
-    //   </ThemedView>
-    // </ParallaxScrollView>
+
+        <View style={styles.todayContainer}>
+          <Text style={styles.todayLabel}>Today's Water Intake</Text>
+          <Text style={styles.todayValue}>
+            {(currentIntake / 1000).toFixed(2)}{" "}
+            <Text style={styles.unitText}>litres</Text>
+          </Text>
+
+          <View
+            style={{
+              height: 10,
+              width: "100%",
+              backgroundColor: isDark ? "#333" : "#ccc",
+              borderRadius: 5,
+              marginTop: 12,
+              overflow: "hidden",
+            }}
+          >
+            <View
+              style={{
+                height: "100%",
+                width: `${Math.min(progress * 100, 100)}%`,
+                backgroundColor: isDark ? "#00e5ff" : "#007aff",
+              }}
+            />
+          </View>
+
+          <Text style={styles.goalText}>
+            {currentIntake} / {dailyGoal} ml
+          </Text>
+        </View>
+
+        {/* <TouchableOpacity onPress={handleLogIntake} style={styles.iconButton}>
+          <FontAwesome6 name="plus" size={28} color="white" />
+        </TouchableOpacity> */}
+
+        <View style={styles.amountSelector}>
+          {[200, 250, 300].map((amount) => (
+            <Text
+              key={amount}
+              style={[
+                styles.amountOption,
+                selectedAmount === amount && styles.selectedOption,
+              ]}
+              onPress={() => {
+                setSelectedAmount(amount);
+                handleLogIntake();
+              }}
+            >
+              {amount}ml
+            </Text>
+          ))}
+        </View>
+
+        <View style={styles.timelineContainer}>
+          <Text style={styles.timelineTitle}>Water Log Timeline</Text>
+          {intakeLogs.map((log, index) => (
+            <Text key={index} style={styles.timelineItem}>
+              💧 {log.amount}ml at {log.time}
+            </Text>
+          ))}
+        </View>
+
+        <Text style={styles.motivationText}>Keep it up! Stay hydrated 💧</Text>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
-  },
-});
+const getStyles = (isDark: boolean) =>
+  StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: isDark ? "#121212" : "#ffffff",
+    },
+    container: {
+      padding: 16,
+    },
+    sectionTitle: {
+      fontSize: 20,
+      fontWeight: "600",
+      color: isDark ? "#fff" : "#000",
+      marginBottom: 8,
+    },
+    chartWrapper: {
+      backgroundColor: isDark ? "#1e1e1e" : "#f2f2f2",
+      borderRadius: 12,
+      padding: 12,
+      height: 250,
+      overflow: "hidden",
+      marginBottom: 16,
+    },
+    divider: {
+      height: 2,
+      marginVertical: 16,
+    },
+    todayContainer: {
+      backgroundColor: isDark ? "#1f1f1f" : "#f2f2f2",
+      padding: 20,
+      borderRadius: 10,
+      alignItems: "center",
+    },
+    todayLabel: {
+      fontSize: 18,
+      color: isDark ? "#ccc" : "#333",
+      marginBottom: 8,
+    },
+    todayValue: {
+      fontSize: 36,
+      fontWeight: "bold",
+      color: isDark ? "#4FC3F7" : "#007aff",
+    },
+    unitText: {
+      fontSize: 14,
+      color: isDark ? "#bbb" : "#555",
+    },
+    goalText: {
+      marginTop: 6,
+      color: isDark ? "#aaa" : "#444",
+      fontSize: 12,
+    },
+    progressBar: {
+      width: "100%",
+      height: 10,
+      borderRadius: 4,
+      marginTop: 10,
+      backgroundColor: isDark ? "#333" : "#ccc",
+    },
+    logButton: {
+      marginTop: 24,
+      marginBottom: 8,
+      alignSelf: "center",
+      width: "60%",
+    },
+    motivationText: {
+      fontSize: 16,
+      textAlign: "center",
+      color: isDark ? "#aaa" : "#666",
+      marginTop: 24,
+    },
+    amountSelector: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      marginTop: 24,
+      padding: 8,
+    },
+    amountOption: {
+      padding: 12,
+      borderRadius: 8,
+      backgroundColor: "#ccc",
+      color: "#000",
+    },
+    selectedOption: {
+      backgroundColor: "#4FC3F7",
+      color: "#fff",
+      fontWeight: "bold",
+    },
+    iconButton: {
+      backgroundColor: "#4FC3F7",
+      borderRadius: 50,
+      padding: 16,
+      alignSelf: "center",
+      marginTop: 10,
+    },
+    timelineContainer: {
+      marginTop: 32,
+      padding: 16,
+      backgroundColor: isDark ? "#1e1e1e" : "#eee",
+      borderRadius: 10,
+    },
+    timelineTitle: {
+      fontSize: 18,
+      fontWeight: "600",
+      marginBottom: 10,
+      color: isDark ? "#fff" : "#000",
+    },
+    timelineItem: {
+      fontSize: 14,
+      color: isDark ? "#ccc" : "#333",
+      marginBottom: 12,
+    },
+  });
