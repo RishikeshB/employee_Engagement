@@ -36,4 +36,11 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# config
+google-services.json
+well-zone-notification-firebase-adminsdk-fbsvc-d1764cb750.json
+
 app-example
+
+/ios
+/android
