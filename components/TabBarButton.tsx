@@ -1,6 +1,6 @@
-import { icon } from '@/constants/icon';
-import { TabRouteName } from '@/interface/tabs';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { icon } from "@/constants/icon";
+import { TabRouteName } from "@/interface/tabs";
+import { Pressable, StyleSheet, Text, useColorScheme } from "react-native";
 
 interface TabBarButtonProps {
   routeName: TabRouteName;
@@ -10,13 +10,26 @@ interface TabBarButtonProps {
   label: string;
 }
 
-const TabBarButton = ({ routeName, onPress, onLongPress, isFocused, label }: TabBarButtonProps) => {
+const TabBarButton = ({
+  routeName,
+  onPress,
+  onLongPress,
+  isFocused,
+  label,
+}: TabBarButtonProps) => {
+  const isDark = useColorScheme() === "dark";
   return (
-    <Pressable onPress={onPress} onLongPress={onLongPress} style={styles.tabBarItem}>
+    <Pressable
+      onPress={onPress}
+      onLongPress={onLongPress}
+      style={styles.tabBarItem}
+    >
       {icon[routeName]({
-        color: isFocused ? '#673ab7' : '#222',
+        color: isFocused ? "#4FC3F7" : isDark ? "#fff" : "#000",
       })}
-      <Text style={{ color: isFocused ? '#673ab7' : '#222' }}>{label}</Text>
+      <Text style={{ color: isFocused ? "#4FC3F7" : isDark ? "#fff" : "#000" }}>
+        {label}
+      </Text>
     </Pressable>
   );
 };
@@ -24,8 +37,8 @@ const TabBarButton = ({ routeName, onPress, onLongPress, isFocused, label }: Tab
 const styles = StyleSheet.create({
   tabBarItem: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     gap: 5,
   },
 });

@@ -1,24 +1,28 @@
-import { TabRouteName } from '@/interface/tabs'; // Make sure this exists: type TabRouteName = 'index' | 'explore' | 'profile';
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { StyleSheet, View } from 'react-native';
-import TabBarButton from './TabBarButton';
+import { TabRouteName } from "@/interface/tabs";
+import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { StyleSheet, useColorScheme, View } from "react-native";
+import TabBarButton from "./TabBarButton";
 
 function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
+
+  const styles = getStyles(isDark);
+
   return (
     <View style={styles.tabBar}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
-        const label = options.tabBarLabel ?? options.title ?? route.name;
+        const label = route.name;
 
         const isFocused = state.index === index;
 
         const onPress = () => {
           const event = navigation.emit({
-            type: 'tabPress',
+            type: "tabPress",
             target: route.key,
             canPreventDefault: true,
           });
-
           if (!isFocused && !event.defaultPrevented) {
             navigation.navigate(route.name, route.params);
           }
@@ -26,7 +30,7 @@ function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
         const onLongPress = () => {
           navigation.emit({
-            type: 'tabLongPress',
+            type: "tabLongPress",
             target: route.key,
           });
         };
@@ -46,24 +50,19 @@ function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  tabBar: {
-    position: 'absolute',
-    bottom: 20,
-    left: 40,
-    right: 40,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingVertical: 15,
-    borderRadius: 35,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowRadius: 10,
-    shadowOpacity: 0.1,
-    elevation: 5, // For Android shadow
-  },
-});
+function getStyles(isDark: boolean) {
+  return StyleSheet.create({
+    tabBar: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      backgroundColor: isDark ? "#000" : "#fff",
+      paddingVertical: 15,
+      marginBottom: 10,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 10 },
+    },
+  });
+}
 
 export default TabBar;

@@ -1,5 +1,8 @@
 import { registerForPushNotificationsAsync } from "@/utils/registerForPushNotificationsAsync";
-import { EventSubscription } from "expo-notifications";
+import {
+  EventSubscription,
+  SchedulableTriggerInputTypes,
+} from "expo-notifications";
 
 import * as Notifications from "expo-notifications";
 import React, {
@@ -23,20 +26,20 @@ const NotificationContext = createContext<NotificationContextType | undefined>(
 
 export const useNotification = () => {
   const context = useContext(NotificationContext);
-  // Notifications.scheduleNotificationAsync({
-  //   content: {
-  //     title: "Welcome to the Notification Context!",
-  //     body: "This is a test notification from the NotificationContext.",
-  //     data: { extraData: "This is some extra data" },
-  //   },
-  //   identifier: "test-notification",
-  //   trigger: {
-  //     type: SchedulableTriggerInputTypes.TIME_INTERVAL,
-  //     channelId: "string",
-  //     repeats: true,
-  //     seconds: 1800,
-  //   },
-  // });
+  Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Get a bottle of water",
+      body: "It's time to hydrate!",
+      data: { extraData: "This is some extra data" },
+    },
+    identifier: "test-notification",
+    trigger: {
+      type: SchedulableTriggerInputTypes.TIME_INTERVAL,
+      channelId: "string",
+      repeats: true,
+      seconds: 1800,
+    },
+  });
   if (context === undefined) {
     throw new Error(
       "useNotification must be used within a NotificationProvider"
