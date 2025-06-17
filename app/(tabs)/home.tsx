@@ -1,31 +1,21 @@
-import MyBarChart from "@/components/BarChart";
-import { useNotification } from "@/context/NotificationContext";
-import { LinearGradient } from "expo-linear-gradient";
-import * as Updates from "expo-updates";
-import React, { useEffect, useState } from "react";
-import {
-  Alert,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from "react-native";
+import MyBarChart from '@/components/BarChart';
+import { useNotification } from '@/context/NotificationContext';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Stack } from 'expo-router';
+import * as Updates from 'expo-updates';
+import React, { useEffect, useState } from 'react';
+import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
 
 export default function HomeScreen() {
   const { notification, expoPushToken, error } = useNotification();
-  const { currentlyRunning, isUpdateAvailable, isUpdatePending } =
-    Updates.useUpdates();
+  const { currentlyRunning, isUpdateAvailable, isUpdatePending } = Updates.useUpdates();
 
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const isDark = colorScheme === 'dark';
 
   const [currentIntake, setCurrentIntake] = useState(1300);
   const [selectedAmount, setSelectedAmount] = useState(250);
-  const [intakeLogs, setIntakeLogs] = useState<
-    { amount: number; time: string }[]
-  >([]);
+  const [intakeLogs, setIntakeLogs] = useState<{ amount: number; time: string }[]>([]);
 
   const dailyGoal = 3000;
   const progress = currentIntake / dailyGoal;
@@ -40,15 +30,15 @@ export default function HomeScreen() {
     try {
       await Updates.reloadAsync();
     } catch (e) {
-      Alert.alert("Update Error", "Failed to apply update.");
+      Alert.alert('Update Error', 'Failed to apply update.');
     }
   };
 
   const handleLogIntake = () => {
     const now = new Date();
     const timestamp = now.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
+      hour: '2-digit',
+      minute: '2-digit',
     });
 
     setCurrentIntake((prev) => {
@@ -57,16 +47,14 @@ export default function HomeScreen() {
       return newTotal > dailyGoal ? dailyGoal : newTotal;
     });
 
-    setIntakeLogs((logs) => [
-      ...logs,
-      { amount: selectedAmount, time: timestamp },
-    ]);
+    setIntakeLogs((logs) => [...logs, { amount: selectedAmount, time: timestamp }]);
   };
 
   const styles = getStyles(isDark);
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <Stack.Screen options={{ headerShown: false }} />
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.sectionTitle}>Last 7 Days</Text>
         <View style={styles.chartWrapper}>
@@ -74,7 +62,7 @@ export default function HomeScreen() {
         </View>
 
         <LinearGradient
-          colors={["rgba(200,200,200,0)", "#888", "rgba(200,200,200,0)"]}
+          colors={['rgba(200,200,200,0)', '#888', 'rgba(200,200,200,0)']}
           style={styles.divider}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
@@ -83,25 +71,24 @@ export default function HomeScreen() {
         <View style={styles.todayContainer}>
           <Text style={styles.todayLabel}>Today's Water Intake</Text>
           <Text style={styles.todayValue}>
-            {(currentIntake / 1000).toFixed(2)}{" "}
-            <Text style={styles.unitText}>litres</Text>
+            {(currentIntake / 1000).toFixed(2)} <Text style={styles.unitText}>litres</Text>
           </Text>
 
           <View
             style={{
               height: 10,
-              width: "100%",
-              backgroundColor: isDark ? "#333" : "#ccc",
+              width: '100%',
+              backgroundColor: isDark ? '#333' : '#ccc',
               borderRadius: 5,
               marginTop: 12,
-              overflow: "hidden",
+              overflow: 'hidden',
             }}
           >
             <View
               style={{
-                height: "100%",
+                height: '100%',
                 width: `${Math.min(progress * 100, 100)}%`,
-                backgroundColor: isDark ? "#00e5ff" : "#007aff",
+                backgroundColor: isDark ? '#00e5ff' : '#007aff',
               }}
             />
           </View>
@@ -119,10 +106,7 @@ export default function HomeScreen() {
           {[200, 250, 300].map((amount) => (
             <Text
               key={amount}
-              style={[
-                styles.amountOption,
-                selectedAmount === amount && styles.selectedOption,
-              ]}
+              style={[styles.amountOption, selectedAmount === amount && styles.selectedOption]}
               onPress={() => {
                 setSelectedAmount(amount);
                 handleLogIntake();
@@ -152,23 +136,23 @@ const getStyles = (isDark: boolean) =>
   StyleSheet.create({
     safeArea: {
       flex: 1,
-      backgroundColor: isDark ? "#121212" : "#ffffff",
+      backgroundColor: isDark ? '#121212' : '#ffffff',
     },
     container: {
       padding: 16,
     },
     sectionTitle: {
       fontSize: 20,
-      fontWeight: "600",
-      color: isDark ? "#fff" : "#000",
+      fontWeight: '600',
+      color: isDark ? '#fff' : '#000',
       marginBottom: 8,
     },
     chartWrapper: {
-      backgroundColor: isDark ? "#1e1e1e" : "#f2f2f2",
+      backgroundColor: isDark ? '#1e1e1e' : '#f2f2f2',
       borderRadius: 12,
       padding: 12,
       height: 250,
-      overflow: "hidden",
+      overflow: 'hidden',
       marginBottom: 16,
     },
     divider: {
@@ -176,88 +160,88 @@ const getStyles = (isDark: boolean) =>
       marginVertical: 16,
     },
     todayContainer: {
-      backgroundColor: isDark ? "#1f1f1f" : "#f2f2f2",
+      backgroundColor: isDark ? '#1f1f1f' : '#f2f2f2',
       padding: 20,
       borderRadius: 10,
-      alignItems: "center",
+      alignItems: 'center',
     },
     todayLabel: {
       fontSize: 18,
-      color: isDark ? "#ccc" : "#333",
+      color: isDark ? '#ccc' : '#333',
       marginBottom: 8,
     },
     todayValue: {
       fontSize: 36,
-      fontWeight: "bold",
-      color: isDark ? "#4FC3F7" : "#007aff",
+      fontWeight: 'bold',
+      color: isDark ? '#4FC3F7' : '#007aff',
     },
     unitText: {
       fontSize: 14,
-      color: isDark ? "#bbb" : "#555",
+      color: isDark ? '#bbb' : '#555',
     },
     goalText: {
       marginTop: 6,
-      color: isDark ? "#aaa" : "#444",
+      color: isDark ? '#aaa' : '#444',
       fontSize: 12,
     },
     progressBar: {
-      width: "100%",
+      width: '100%',
       height: 10,
       borderRadius: 4,
       marginTop: 10,
-      backgroundColor: isDark ? "#333" : "#ccc",
+      backgroundColor: isDark ? '#333' : '#ccc',
     },
     logButton: {
       marginTop: 24,
       marginBottom: 8,
-      alignSelf: "center",
-      width: "60%",
+      alignSelf: 'center',
+      width: '60%',
     },
     motivationText: {
       fontSize: 16,
-      textAlign: "center",
-      color: isDark ? "#aaa" : "#666",
+      textAlign: 'center',
+      color: isDark ? '#aaa' : '#666',
       marginTop: 24,
     },
     amountSelector: {
-      flexDirection: "row",
-      justifyContent: "space-around",
+      flexDirection: 'row',
+      justifyContent: 'space-around',
       marginTop: 24,
       padding: 8,
     },
     amountOption: {
       padding: 12,
       borderRadius: 8,
-      backgroundColor: "#ccc",
-      color: "#000",
+      backgroundColor: '#ccc',
+      color: '#000',
     },
     selectedOption: {
-      backgroundColor: "#4FC3F7",
-      color: "#fff",
-      fontWeight: "bold",
+      backgroundColor: '#4FC3F7',
+      color: '#fff',
+      fontWeight: 'bold',
     },
     iconButton: {
-      backgroundColor: "#4FC3F7",
+      backgroundColor: '#4FC3F7',
       borderRadius: 50,
       padding: 16,
-      alignSelf: "center",
+      alignSelf: 'center',
       marginTop: 10,
     },
     timelineContainer: {
       marginTop: 32,
       padding: 16,
-      backgroundColor: isDark ? "#1e1e1e" : "#eee",
+      backgroundColor: isDark ? '#1e1e1e' : '#eee',
       borderRadius: 10,
     },
     timelineTitle: {
       fontSize: 18,
-      fontWeight: "600",
+      fontWeight: '600',
       marginBottom: 10,
-      color: isDark ? "#fff" : "#000",
+      color: isDark ? '#fff' : '#000',
     },
     timelineItem: {
       fontSize: 14,
-      color: isDark ? "#ccc" : "#333",
+      color: isDark ? '#ccc' : '#333',
       marginBottom: 12,
     },
   });

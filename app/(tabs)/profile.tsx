@@ -1,140 +1,103 @@
-import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React, { useState } from "react";
-import { Image, StyleSheet, Text, useColorScheme, View } from "react-native";
-import { Pressable, ScrollView } from "react-native-gesture-handler";
-import EmployeeEngagementForm from "../(forms)/employee_engagement_form";
+import { Feather } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router, Stack } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Alert, Image, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { Pressable, ScrollView } from 'react-native-gesture-handler';
 
 export default function ProfileScreen() {
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-  const [isFaceIDEnabled, setIsFaceIDEnabled] = useState(false);
+  const isDark = colorScheme === 'dark';
 
-  // const profileOptions = [
-  //   {
-  //     icon: "user",
-  //     label: "My Account",
-  //     subLabel: "Make changes to your account",
-  //     alert: true,
-  //   },
-  //   {
-  //     icon: "users",
-  //     label: "Saved Beneficiary",
-  //     subLabel: "Manage your saved account",
-  //   },
-  //   {
-  //     icon: "lock",
-  //     label: "Face ID / Touch ID",
-  //     subLabel: "Manage your device security",
-  //     toggle: true,
-  //   },
-  //   {
-  //     icon: "shield",
-  //     label: "Two-Factor Authentication",
-  //     subLabel: "Further secure your account for safety",
-  //   },
-  //   {
-  //     icon: "log-out",
-  //     label: "Log out",
-  //     subLabel: "Further secure your account for safety",
-  //   },
-  // ];
+  // ✅ Add user state
+  const [user, setUser] = useState<{
+    name?: string;
+    phoneNumber?: string;
+    age?: number;
+    height?: number;
+    weight?: number;
+  }>({});
 
-  // const moreOptions = [
-  //   {
-  //     icon: "help-circle",
-  //     label: "Help & Support",
-  //   },
-  //   {
-  //     icon: "info",
-  //     label: "About App",
-  //   },
-  // ];
+  // ✅ Load user from AsyncStorage
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const userData = await AsyncStorage.getItem('user');
+        if (userData) {
+          setUser(JSON.parse(userData));
+        }
+      } catch (error) {
+        console.log('Error loading user data', error);
+      }
+    };
+
+    loadUser();
+  }, []);
 
   const styles = getStyles(isDark);
 
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('user');
+    router.replace('/');
+    console.log('User logged out');
+  };
+
+  const handleEdit = async () => {
+    if (user) {
+      console.log(user);
+      router.push({
+        pathname: '/(forms)/employee_engagement_form',
+        params: {
+          name: user.name || '',
+          age: user.age?.toString() || '',
+          height: user.height?.toString() || '',
+          weight: user.weight?.toString() || '',
+          mobile: user.phoneNumber || '',
+        },
+      });
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
+
       {/* Profile Header */}
       <View style={styles.profileCard}>
         <Image
-          source={{ uri: "https://ui-avatars.com/api/?name=Bala+Kannan" }}
+          source={{
+            uri: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+              user?.name || 'Guest'
+            )}&background=4FC3F7&color=fff`,
+          }}
           style={styles.avatar}
         />
         <View style={styles.profileInfo}>
-          <Text style={styles.name}>Balakannan B</Text>
-          <Text style={styles.username}>@balakannanb</Text>
+          <Text style={styles.name}>{user?.name || 'Your Name'}</Text>
+          <Text style={styles.username}>{user?.phoneNumber || 'username'}</Text>
         </View>
+
+        <Pressable style={styles.editIconContainer} onPress={handleEdit}>
+          <Feather name='edit' size={20} color='white' />
+        </Pressable>
+
         <Pressable
           style={styles.editIconContainer}
           onPress={() =>
-            router.push({
-              pathname: "/(forms)/employee_engagement_form",
-              params: {
-                name: "Rishikesh",
-                age: "25",
-                height: "170",
-                weight: "65",
-                mobile: "9876543210",
-              },
-            })
+            Alert.alert(
+              'Logout',
+              'Are you sure you want to logout?',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Logout', onPress: handleLogout, style: 'destructive' },
+              ],
+              { cancelable: true }
+            )
           }
         >
-          <Feather
-            name="edit-3"
-            size={20}
-            color="white"
-            style={styles.editIcon}
-          />
+          <Feather name='log-out' size={20} color='#6e6e6e' />
         </Pressable>
       </View>
-
-      <EmployeeEngagementForm />
-      {/* Profile Options */}
-      {/* <View style={styles.section}>
-        {profileOptions.map((item, index) => (
-          <Pressable key={index} style={styles.optionRow}>
-            <View style={styles.leftIcon}>
-              <Feather name={item.icon as any} size={20} color="#6e6e6e" />
-            </View>
-            <View style={styles.optionText}>
-              <Text style={styles.label}>{item.label}</Text>
-              {item.subLabel && (
-                <Text style={styles.subLabel}>{item.subLabel}</Text>
-              )}
-            </View>
-            <View style={styles.rightElement}>
-              {item.toggle ? (
-                <Switch
-                  value={isFaceIDEnabled}
-                  onValueChange={setIsFaceIDEnabled}
-                  thumbColor={isFaceIDEnabled ? "#4FC3F7" : "#ccc"}
-                />
-              ) : item.alert ? (
-                <MaterialIcons name="error-outline" size={20} color="red" />
-              ) : (
-                <Feather name="chevron-right" size={20} color="#999" />
-              )}
-            </View>
-          </Pressable>
-        ))}
-      </View> */}
-
-      {/* More */}
-      {/* <Text style={styles.sectionTitle}>More</Text>
-      <View style={styles.section}>
-        {moreOptions.map((item, index) => (
-          <Pressable key={index} style={styles.optionRow}>
-            <View style={styles.leftIcon}>
-              <Feather name={item.icon as any} size={20} color="#6e6e6e" />
-            </View>
-            <View style={styles.optionText}>
-              <Text style={styles.label}>{item.label}</Text>
-            </View>
-            <Feather name="chevron-right" size={20} color="#999" />
-          </Pressable>
-        ))}
-      </View> */}
     </ScrollView>
   );
 }
@@ -142,18 +105,19 @@ export default function ProfileScreen() {
 function getStyles(isDark: boolean) {
   return StyleSheet.create({
     container: {
+      paddingTop: 70,
       paddingVertical: 20,
       paddingHorizontal: 20,
-      backgroundColor: isDark ? "#121212" : "#ffffff",
+      backgroundColor: isDark ? '#121212' : '#ffffff',
     },
     profileCard: {
-      backgroundColor: "#4FC3F770",
+      backgroundColor: '#4FC3F770',
       borderRadius: 12,
-      flexDirection: "row",
-      alignItems: "center",
+      flexDirection: 'row',
+      alignItems: 'center',
       padding: 15,
       marginBottom: 20,
-      position: "relative",
+      position: 'relative',
     },
     avatar: {
       width: 50,
@@ -165,62 +129,19 @@ function getStyles(isDark: boolean) {
       flex: 1,
     },
     name: {
-      color: "white",
+      color: 'white',
       fontSize: 16,
-      fontWeight: "bold",
+      fontWeight: 'bold',
     },
     username: {
-      color: "white",
+      color: 'white',
       fontSize: 13,
-    },
-    editIcon: {
-      backgroundColor: "#4FC3F7",
-      padding: 8,
-      borderRadius: 8,
-    },
-    section: {
-      backgroundColor: "white",
-      borderRadius: 12,
-      paddingVertical: 10,
-      marginBottom: 25,
-    },
-    sectionTitle: {
-      fontSize: 16,
-      fontWeight: "bold",
-      marginBottom: 10,
-      color: "#333",
-    },
-    optionRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      paddingHorizontal: 15,
-      paddingVertical: 14,
-      borderBottomColor: "#eee",
-      borderBottomWidth: 1,
-    },
-    leftIcon: {
-      marginRight: 12,
-    },
-    optionText: {
-      flex: 1,
-    },
-    label: {
-      fontSize: 15,
-      fontWeight: "500",
-      color: "#333",
-    },
-    subLabel: {
-      fontSize: 12,
-      color: "#888",
-      marginTop: 2,
-    },
-    rightElement: {
-      marginLeft: 10,
     },
     editIconContainer: {
       padding: 10,
-      backgroundColor: "#4FC3F7",
+      backgroundColor: '#4FC3F7',
       borderRadius: 20,
+      marginLeft: 8,
     },
   });
 }
